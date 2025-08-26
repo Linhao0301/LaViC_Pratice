@@ -1,0 +1,57 @@
+# LaViC Project .gitignore
+
+# Data files (too large for GitHub)
+data/
+
+# Training outputs
+src/out_distilled/
+src/out_finetuned/
+logs/
+src/lightning_logs/
+
+# Temporary directories
+/root/autodl-tmp/tmp/
+tmp/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.log
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Model checkpoints and weights (too large)
+*.ckpt
+*.bin
+*.safetensors
+*.pt
+*.pth
+
+# Cache directories
+.cache/
+__pycache__/
+*.egg-info/
+
+# Environment files
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
