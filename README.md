@@ -4,7 +4,7 @@
 
 This is the vision knowledge self-distillation training part of the LaViC (Large Vision-Language Conversational Recommendation) project, where the vision module of the LLaVA-v1.6 model is fine-tuned using LoRA technology.
 
-During reproduction, some issues were found in the original code for crawling images and vision module LoRA training (no parallelism, incorrect loss calculation, etc.), and debugging was performed.
+During reproduction, some issues were found in the original code for crawling images and vision module LoRA training (no parallelism, incorrect loss calculation, etc. ), and debugging was performed. **I will add the complete code modification regulations later**
 
 ## 📋 Reproduction Requirements
 
