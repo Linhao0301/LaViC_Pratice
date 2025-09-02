@@ -10,7 +10,7 @@ During reproduction, some issues were found in the original code for crawling im
 - crawl_images.py：concurrent downloads, network optimizations. the original code crawling images may take 8-9 hours 'cause its sequential downloading, now can be 10-50x accelerate
 - knowledge_distillation.py：Ensures correct loss computation through complete LLaVA model forward pass；error handling, robustness improvements
 
-## 9.1 New：mutil-gpu training achieve
+## 9.1 New：mutil-gpu training
 - ./src/knowledge_distillation_multi_gpu.py and ./run_training_multi_gpu.sh
 - using DDP stragety, not FSDP (better, but not achieve yet). DDP stragety is easier but cost more vram, 'cause DDP will load complete model on each gpu, which means each gpu still cost 20gb vram when you set batch-size=1). 
 - 2 gpus bring 1.8x acclerate
