@@ -32,9 +32,7 @@ if [ $GPU_COUNT -lt 2 ]; then
     GPU_COUNT=1
 fi
 
-# 创建必要目录
-mkdir -p /root/autodl-tmp/LaViC/logs
-mkdir -p /root/autodl-tmp/LaViC/src/out_distilled_multi_gpu
+
 
 # 设置日志文件
 LOG_FILE="/root/autodl-tmp/LaViC/logs/training_multi_gpu_v2_$(date +%Y%m%d_%H%M%S).log"
