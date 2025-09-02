@@ -6,7 +6,14 @@ This is the vision knowledge self-distillation training part of the LaViC (Large
 
 During reproduction, some issues were found in the original code for crawling images and vision module LoRA training (no parallelism, incorrect loss calculation, etc. ), and debugging was performed. 
 
-**I will add the complete code modification regulations later**
+## Files Modified
+- crawl_images.py：concurrent downloads, network optimizations
+- knowledge_distillation.py：Ensures correct loss computation through complete LLaVA model forward pass；error handling, robustness improvements
+
+## 9.1 New：mutil-gpu training achieve
+- ./src/knowledge_distillation_multi_gpu.py and ./run_training_multi_gpu.sh
+- using DDP stragety, not FSDP(better, but not achieve yet. DDP stragety is easier but cost more vram, 'cause DDP will load complete model on each gpu, which means each gpu still cost 20gb vram when you set batch-size=1). 
+- 2 gpus bring 1.8x acclerate
 
 ## 📋 Reproduction Requirements
 
