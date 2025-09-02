@@ -7,7 +7,7 @@ This is the vision knowledge self-distillation training part of the LaViC (Large
 During reproduction, some issues were found in the original code for crawling images and vision module LoRA training (no parallelism, incorrect loss calculation, etc. ), and debugging was performed. 
 
 ## Files Modified
-- crawl_images.py：concurrent downloads, network optimizations
+- crawl_images.py：concurrent downloads, network optimizations. the original code crawling images may take 8-9 hours 'cause its sequential downloading, now can be 10-50x accelerate
 - knowledge_distillation.py：Ensures correct loss computation through complete LLaVA model forward pass；error handling, robustness improvements
 
 ## 9.1 New：mutil-gpu training achieve
