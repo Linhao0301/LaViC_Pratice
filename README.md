@@ -12,7 +12,7 @@ During reproduction, some issues were found in the original code for crawling im
 
 ## 9.1 New：mutil-gpu training achieve
 - ./src/knowledge_distillation_multi_gpu.py and ./run_training_multi_gpu.sh
-- using DDP stragety, not FSDP(better, but not achieve yet. DDP stragety is easier but cost more vram, 'cause DDP will load complete model on each gpu, which means each gpu still cost 20gb vram when you set batch-size=1). 
+- using DDP stragety, not FSDP (better, but not achieve yet). DDP stragety is easier but cost more vram, 'cause DDP will load complete model on each gpu, which means each gpu still cost 20gb vram when you set batch-size=1). 
 - 2 gpus bring 1.8x acclerate
 
 ## 📋 Reproduction Requirements
