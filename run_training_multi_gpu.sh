@@ -71,7 +71,6 @@ echo -e "   • Total effective batch: $((2 * GPU_COUNT))"
 echo -e "   • Strategy: DDP"
 echo -e "   • Precision: 16-mixed"
 echo -e "   • Workers per GPU: 8"
-echo -e "   • Max samples: 10000 (test)"
 
 # 记录PID
 echo $$ > $PID_FILE
