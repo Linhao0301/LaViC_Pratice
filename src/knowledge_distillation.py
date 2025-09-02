@@ -18,7 +18,7 @@ import torch
 from PIL import Image, UnidentifiedImageError
 from peft import LoraConfig, get_peft_model, TaskType
 from pytorch_lightning import seed_everything
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelCheckpoint, Callback
 from torch.utils.data import Dataset, DataLoader
 from tqdm import tqdm
 from transformers import AutoProcessor, LlavaForConditionalGeneration
@@ -361,6 +361,28 @@ class PretrainVisionModel(pl.LightningModule):
         return optimizer
 
 
+class BestLoRASaver(Callback):
+    """
+    自动保存最佳验证loss对应的LoRA权重
+    """
+    def __init__(self, save_dir, monitor='val_loss'):
+        super().__init__()
+        self.save_dir = save_dir
+        self.monitor = monitor
+        self.best_score = float('inf')
+        self.best_lora_path = os.path.join(save_dir, "vision_lora_adapter_best")
+    
+    def on_validation_epoch_end(self, trainer, pl_module):
+        current_score = trainer.callback_metrics.get(self.monitor, float('inf'))
+        
+        if current_score < self.best_score:
+            self.best_score = current_score
+            # 保存当前最佳LoRA
+            print(f"[INFO] 🎯 New best {self.monitor}: {current_score:.4f}, saving LoRA...")
+            pl_module.model.save_pretrained(self.best_lora_path)
+            print(f"[INFO] ✅ Best LoRA adapter saved to: {self.best_lora_path}")
+
+
 def print_trainable_parameters(model):
     """
     Utility to display the total and trainable parameters.
@@ -523,10 +545,17 @@ def main():
         monitor='val_loss',
         mode='min',
     )
+    
+    # 添加最佳LoRA自动保存器
+    lora_saver = BestLoRASaver(
+        save_dir=args.output_dir,
+        monitor='val_loss'
+    )
+    
     trainer = pl.Trainer(
         max_epochs=args.num_epochs,
         accelerator="gpu" if torch.cuda.is_available() else "cpu",
-        callbacks=[checkpoint_callback],
+        callbacks=[checkpoint_callback, lora_saver],  # 添加LoRA保存器
         precision="16",
         gradient_clip_val=1.0,
         log_every_n_steps=10,
@@ -535,22 +564,29 @@ def main():
     print("\n[INFO] Starting training for vision distillation.")
     trainer.fit(pl_model, train_loader, val_loader)
 
-    # 8) Retrieve best checkpoint
+    # 8) 训练完成总结
+    print("\n[INFO] 🎉 Training completed!")
+    
+    # 显示训练总结
     best_ckpt_path = checkpoint_callback.best_model_path
-    print(f"[INFO] Best checkpoint path: {best_ckpt_path}")
-
-    # 9) Load best model
-    best_model = PretrainVisionModel.load_from_checkpoint(
-        checkpoint_path=best_ckpt_path,
-        model=lora_model,
-        processor=processor,
-        tokenizer=tokenizer,
-        args=args
-    ).to(device)
-
-    # 10) Save only the LoRA adapter
-    best_model.model.save_pretrained(os.path.join(args.output_dir, "vision_lora_adapter_best"))
-    print("[INFO] Best LoRA adapter saved.")
+    final_val_loss = trainer.callback_metrics.get('val_loss', float('inf'))
+    final_val_ppl = trainer.callback_metrics.get('val_perplexity', float('inf'))
+    
+    print(f"[INFO] 📊 Training Summary:")
+    print(f"   • Best checkpoint: {best_ckpt_path}")
+    print(f"   • Best validation loss: {lora_saver.best_score:.4f}")
+    print(f"   • Final validation loss: {final_val_loss:.4f}")
+    print(f"   • Final validation perplexity: {final_val_ppl:.4f}")
+    print(f"   • Best LoRA saved to: {lora_saver.best_lora_path}")
+    
+    # 检查最终模型是否就是最佳模型
+    if abs(final_val_loss - lora_saver.best_score) < 1e-6:
+        print("[INFO] ✅ Final model is the best model!")
+    else:
+        print(f"[INFO] ⚠️  Final model differs from best by {abs(final_val_loss - lora_saver.best_score):.4f}")
+        print("[INFO] ✅ But best LoRA was already saved automatically during training!")
+    
+    print("[INFO] 🚀 Training completed successfully!")
 
 
 if __name__ == "__main__":
